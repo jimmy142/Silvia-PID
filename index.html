@@ -1,0 +1,250 @@
+<!DOCTYPE HTML><html>
+
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://code.highcharts.com/highcharts.js"></script>
+  <style>
+    body {
+      min-width: 310px;
+    	max-width: 500px;
+    	height: 400px;
+      margin: 0 auto;
+    }
+    h2 {
+      font-family: Arial;
+      font-size: 1.5rem;
+      text-align: center;
+    }
+	h3 {
+      font-family: Arial;
+      font-size: 1.5rem;
+      text-align: center;
+    }
+	
+	h4 {
+      font-family: Arial;
+      font-size: 1.0rem;
+      text-align: left;
+    }
+	h5 {
+      font-family: Arial;
+      font-size: 0.5rem;
+      text-align: left;
+	  color: white;
+    }
+  </style>
+</head>
+<body>
+  <h2>Rancilio Silvia PID</h2>
+  <div id="chart-temperature" class="container"></div>
+</body>
+<script>
+var chartT = new Highcharts.Chart({
+  chart:{ renderTo : 'chart-temperature' },
+  title: { text: '' },
+  series: [{
+    showInLegend: false,
+    data: []
+  }],
+  plotOptions: {
+    line: { animation: false,
+      dataLabels: { enabled: false }
+    },
+    series: { color: '#059e8a' }
+  },
+  xAxis: { type: 'datetime',
+    dateTimeLabelFormats: { second: '%H:%M:%S' }
+  },
+  yAxis: {
+    title: { text: 'Temperature (Celsius)' }
+    //title: { text: 'Temperature (Fahrenheit)' }
+  },
+  credits: { enabled: false }
+});
+setInterval(function ( ) {
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      var x = (new Date()).getTime(),
+          y = parseFloat(this.responseText);
+      //console.log(this.responseText);
+      if(chartT.series[0].data.length > 200) {
+        chartT.series[0].addPoint([x, y], true, true, true);
+      } else {
+        chartT.series[0].addPoint([x, y], true, false, true);
+      }
+    }
+  };
+  xhttp.open("GET", "/temperature", true);
+  xhttp.send();
+}, 3000 ) ;
+</script>
+
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+.slidecontainer {
+  width: 90%;
+}
+
+.slider {
+  -webkit-appearance: none;
+  width: 90%;
+  height: 25px;
+  border-radius: 8px;
+  background: #d3d3d3;
+  outline: none;
+  opacity: 0.7;
+  -webkit-transition: .2s;
+  transition: opacity .2s;
+}
+
+.slider:hover {
+  opacity: 1;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background: #4CAF50;
+  cursor: pointer;
+}
+
+.slider::-moz-range-thumb {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background: #4CAF50;
+  cursor: pointer;
+}
+
+
+
+
+.slider2 {
+  -webkit-appearance: none;
+  width: 200px;
+  height: 35px;
+  border-radius: 8px;
+  background: #d3d3d3;
+  outline: none;
+  opacity: 0.7;
+  -webkit-transition: .2s;
+  transition: opacity .2s;
+}
+
+.slider2:hover {
+  opacity: 1;
+}
+
+.slider2::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100px;
+  height: 30px;
+  border-radius: 10%;
+  background: #FF0000;
+  cursor: pointer;
+}
+
+.slider2::-moz-range-thumb {
+  width: 100px;
+  height: 30px;
+  border-radius: 10%;
+  background: #FF0000;
+  cursor: pointer;
+}
+
+
+
+
+</style>
+</head>
+<body>
+
+<h5>  <span id="textSliderValue3">0</span> </h5>
+<h3> BREW <input type="range" onchange="updateSliderPWM(this)" id="pwmSlider3" min="0" max="1" value="0" step="1" class="slider2"> STEAM </h3> 
+
+
+<h4>Brew temperature setpoint: <span id="textSliderValue1">102</span> C</h4>
+<p><input type="range" onchange="updateSliderPWM(this)" id="pwmSlider1" min="90" max="110" value="102" step="1" class="slider"></p> 
+
+
+<h4>Steam temperature setpoint: <span id="textSliderValue2">130</span> C</h4>
+<p><input type="range" onchange="updateSliderPWM(this)" id="pwmSlider2" min="115" max="145" value="130" step="1" class="slider"></p> 
+
+<script>
+
+function updateSliderPWM(element) {
+  var sliderValue1 = document.getElementById("pwmSlider1").value;
+  var sliderValue2 = document.getElementById("pwmSlider2").value;
+  var sliderValue3 = document.getElementById("pwmSlider3").value;
+  document.getElementById("textSliderValue1").innerHTML = sliderValue1;
+  document.getElementById("textSliderValue2").innerHTML = sliderValue2;
+  document.getElementById("textSliderValue3").innerHTML = sliderValue3;
+  console.log(sliderValue1);
+  console.log(sliderValue2);
+  console.log(sliderValue3);
+  var xhr = new XMLHttpRequest();
+  xhr.open("GET", "/slider?value="+ sliderValue3 + "," +sliderValue1 + "," + sliderValue2, true);
+  xhr.send();
+}
+
+
+</script>
+
+</body>
+
+<body>
+
+<p> Current temperature setpoint: <span id="SP">Updating.</span> C</p>
+
+<script>
+
+
+setInterval(function ( ) {
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      document.getElementById("SP").innerHTML = this.responseText;
+    }
+  };
+  xhttp.open("GET", "/setpoint", true);
+  xhttp.send();
+}, 3000 ) ;
+
+</script>
+
+</body>
+
+
+<body>
+
+<p> Current PID setting: <span id="PID">Updating.</span> %</p>
+
+<script>
+
+
+setInterval(function ( ) {
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      document.getElementById("PID").innerHTML = this.responseText;
+    }
+  };
+  xhttp.open("GET", "/PID", true);
+  xhttp.send();
+}, 3000 ) ;
+
+</script>
+
+</body>
+
+
+
+
+
+</html>
